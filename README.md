@@ -1,4 +1,4 @@
-****Practica****
+****Practica**** - Ortíz, Soledad
 
 Realizar un programa con sockets y threading que realice lo siguiente
 
@@ -16,3 +16,5 @@ Cliente
 
 El cliente tiene que poder conectarse al servidor y recibir el menu y poder ingresar una opcion.
 Ambas deben ser con dos hilos uno para envio y otro para recepcion.
+
+Nota: hecho cada ítem de la consigana.
