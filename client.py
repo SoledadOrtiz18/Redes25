@@ -1,22 +1,64 @@
-import socket  # importa la libreria socket
+#importación de librerías
+import socket
+import threading
 
-print("Este programa es el primer programa cliente en python")
+def recibir_mensajes(sock): # función para recibir mensajes del servidor
+    while True:
+        try:
+            mensaje = sock.recv(1024).decode() # el cliente recibe el mensaje
+            if not mensaje:
+                break
+            print("\n" + mensaje)
+        except:
+            break
 
-ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # crea el socket socket.AF_INET = ipv4, socket.SOCK_STREAM = TCP
-#host = socket.gethostname()
-host = "127.0.0.1"
-port = 12345
-ClientSocket.connect((host, port))
+def enviar_mensajes(sock): # función para enviar mensajes al servidor
+    while True:
+        try:
+            opcion = input("> ").strip() # el cliente elige una opción del 1 al 5
+            sock.sendall(opcion.encode()) # envía la opción elegida
 
-mensaje = ("Gracias por la conexión: ")
-ClientSocket.send(mensaje.encode("utf-8"))
-data = ClientSocket.recv(1024) # recibe 1024 bytes
-print("Respuesta del servidor: ")
-print(data.decode("utf-8"))
+            if opcion == "1":  # Login
+                usuario = input("Ingrese nombre de usuario: ")
+                sock.sendall(usuario.encode())
 
-while mensaje != "chau":
-    mensaje = input("\n[Tú (cliente)]: ")
-    ClientSocket.send(mensaje.encode("utf-8")) #Envía el mensaje al servidor
+            elif opcion == "2":  # Enviar mensaje privado
+                destinatario = input("Enviar a: ")
+                mensaje = input("Mensaje: ")
+                sock.sendall(destinatario.encode())
+                sock.recv(1024)  # espera prompt "Ingrese el mensaje"
+                sock.sendall(mensaje.encode())
 
+            elif opcion == "3":  # Enviar mensaje a todos
+                mensaje = input("Mensaje para todos: ")
+                sock.sendall(mensaje.encode())
 
-ClientSocket.close()
+            elif opcion == "4":
+                continue  # Solo muestra usuarios
+
+            elif opcion == "5": #salir
+                break
+
+            else:
+                print("Opción inválida.")
+
+        except:
+            break
+
+def main():
+    host = "127.0.0.1"
+    port = 12345
+
+    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    cliente.connect((host, port)) # Conexión con el servidor
+
+    print("[Conectado al servidor]")
+
+    threading.Thread(target=recibir_mensajes, args=(cliente,), daemon=True).start() # Hilo para recibir mensajes mientras se escriben otros
+    enviar_mensajes(cliente) # Se queda esperando input
+
+    cliente.close()
+    print("[Cliente desconectado]")
+
+if __name__ == "__main__":
+    main()
